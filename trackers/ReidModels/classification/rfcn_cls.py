@@ -91,11 +91,11 @@ class Model(nn.Module):
 
         _rois = np.zeros([n_rois, 5], dtype=np.float32)
         _rois[:, 1:5] = rois.astype(np.float32)
-        _rois = Variable(torch.from_numpy(_rois)).cuda(cls_feat.get_device())
+        _rois = torch.from_numpy(_rois).to(cls_feat.device)
 
         cls_scores = self.psroipool_cls(cls_feat, _rois)
         cls_scores = self.avg_pool(cls_scores).view(-1)
-        cls_probs = torch.sigmoid(cls_scores).data.cpu().numpy()
+        cls_probs = torch.sigmoid(cls_scores).detach().cpu().numpy()
 
         return cls_probs
 

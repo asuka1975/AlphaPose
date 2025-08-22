@@ -16,7 +16,7 @@ class SpatialCrossMapLRNFunc(Function):
     def forward(self, input):
         self.save_for_backward(input)
         self.lrn = SpatialCrossMapLRNOld(self.size, self.alpha, self.beta, self.k)
-        self.lrn.type(input.type())
+        self.lrn = self.lrn.to(input.dtype)
         return self.lrn.forward(input)
 
     def backward(self, grad_output):

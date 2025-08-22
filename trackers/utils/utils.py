@@ -70,10 +70,10 @@ def plot_one_box(x, img, color=None, label=None, line_thickness=None):  # Plots 
 def weights_init_normal(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
-        torch.nn.init.normal_(m.weight.data, 0.0, 0.03)
+        torch.nn.init.normal_(m.weight.detach(), 0.0, 0.03)
     elif classname.find('BatchNorm2d') != -1:
-        torch.nn.init.normal_(m.weight.data, 1.0, 0.03)
-        torch.nn.init.constant_(m.bias.data, 0.0)
+        torch.nn.init.normal_(m.weight.detach(), 1.0, 0.03)
+        torch.nn.init.constant_(m.bias.detach(), 0.0)
 
 
 def xyxy2xywh(x):
@@ -298,9 +298,9 @@ def build_targets_max(target, anchor_wh, nA, nC, nGh, nGw):
 
     txy = torch.zeros(nB, nA, nGh, nGw, 2).cuda()  # batch size, anchors, grid size
     twh = torch.zeros(nB, nA, nGh, nGw, 2).cuda()
-    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).cuda()
-    tcls = torch.ByteTensor(nB, nA, nGh, nGw, nC).fill_(0).cuda()  # nC = number of classes
-    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).cuda() 
+    tconf = torch.zeros((nB, nA, nGh, nGw), dtype=torch.long, device='cuda')
+    tcls = torch.zeros((nB, nA, nGh, nGw, nC), dtype=torch.uint8, device='cuda')  # nC = number of classes
+    tid = torch.full((nB, nA, nGh, nGw, 1), -1, dtype=torch.long, device='cuda')
     for b in range(nB):
         t = target[b]
         t_id = t[:, 1].clone().long().cuda()
@@ -382,9 +382,9 @@ def build_targets_thres(target, anchor_wh, nA, nC, nGh, nGw):
     nB = len(target)  # number of images in batch
     assert(len(anchor_wh)==nA)
 
-    tbox = torch.zeros(nB, nA, nGh, nGw, 4).cuda()  # batch size, anchors, grid size
-    tconf = torch.LongTensor(nB, nA, nGh, nGw).fill_(0).cuda()
-    tid = torch.LongTensor(nB, nA, nGh, nGw, 1).fill_(-1).cuda() 
+    tbox = torch.zeros((nB, nA, nGh, nGw, 4), device='cuda')  # batch size, anchors, grid size
+    tconf = torch.zeros((nB, nA, nGh, nGw), dtype=torch.long, device='cuda')
+    tid = torch.full((nB, nA, nGh, nGw, 1), -1, dtype=torch.long, device='cuda')
     for b in range(nB):
         t = target[b]
         t_id = t[:, 1].clone().long().cuda()
@@ -435,8 +435,7 @@ def build_targets_thres(target, anchor_wh, nA, nC, nGh, nGw):
 
 def generate_anchor(nGh, nGw, anchor_wh):
     nA = len(anchor_wh)
-    yy, xx =torch.meshgrid(torch.arange(nGh), torch.arange(nGw))
-    xx, yy = xx.cuda(), yy.cuda()
+    yy, xx = torch.meshgrid(torch.arange(nGh, device='cuda'), torch.arange(nGw, device='cuda'))
 
     mesh = torch.stack([xx, yy], dim=0)                                              # Shape 2, nGh, nGw
     mesh = mesh.unsqueeze(0).repeat(nA,1,1,1).float()                                # Shape nA x 2 x nGh x nGw
@@ -482,7 +481,7 @@ def decode_delta_map(delta_map, anchors):
 def pooling_nms(heatmap, kernel=1):
     pad = (kernel -1 ) // 2
     hmax = F.max_pool2d(heatmap, (kernel, kernel), stride=1, padding=pad)
-    keep = (hmax == heatmap).float()
+    keep = (hmax == heatmap).to(torch.float)
     return keep * heatmap
 
 def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4, method='standard'):
@@ -554,7 +553,7 @@ def fast_nms(boxes, scores, iou_thres:float=0.5, top_k:int=200, second_threshold
     keep = (iou_max <= iou_thres)
 
     if second_threshold:
-        keep *= (scores > self.conf_thresh)
+        keep *= (scores > conf_thres)
 
     return idx[keep]
 

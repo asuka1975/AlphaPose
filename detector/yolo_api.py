@@ -213,7 +213,7 @@ class YOLODetector(BaseDetector):
                             # Remove detections with IoU >= NMS threshold
                             image_pred_class = image_pred_class[1:][ious < nms_conf]
 
-                        image_pred_class = torch.cat(max_detections).data
+                        image_pred_class = torch.cat(max_detections).detach()
 
                 #Concatenate the batch_id of the image to the detection
                 #this helps us identify which image does the detection correspond to 

@@ -71,7 +71,7 @@ def to_tensor(pic):
 
         img = torch.from_numpy(pic.transpose((2, 0, 1)))
         # backward compatibility
-        if isinstance(img, torch.ByteTensor):
+        if isinstance(img, torch.Tensor) and img.dtype == torch.uint8:
             return img.float()
         else:
             return img
@@ -86,7 +86,7 @@ def to_tensor(pic):
     elif pic.mode == '1':
         img = 255 * torch.from_numpy(np.array(pic, np.uint8, copy=False))
     else:
-        img = torch.ByteTensor(torch.ByteStorage.from_buffer(pic.tobytes()))
+    img = torch.tensor(torch.ByteStorage.from_buffer(pic.tobytes()), dtype=torch.uint8)
     # PIL image mode: L, LA, P, I, F, RGB, YCbCr, RGBA, CMYK
     if pic.mode == 'YCbCr':
         nchannel = 3
@@ -98,7 +98,7 @@ def to_tensor(pic):
     # put it from HWC to CHW format
     # yikes, this transpose takes 80% of the loading time/CPU
     img = img.transpose(0, 1).transpose(0, 2).contiguous()
-    if isinstance(img, torch.ByteTensor):
+    if isinstance(img, torch.Tensor) and img.dtype == torch.uint8:
         return img.float()
     else:
         return img

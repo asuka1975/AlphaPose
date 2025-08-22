@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 from distutils.version import LooseVersion
 import torch
-from torch.autograd import Variable
 
 from utils import bbox as bbox_utils
 from utils.log import logger
