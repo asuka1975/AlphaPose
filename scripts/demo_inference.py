@@ -227,23 +227,32 @@ if __name__ == "__main__":
         for i in im_names_desc:
             start_time = getTime()
             with torch.no_grad():
-                print("debug")
+                print(1)
                 (inps, orig_img, im_name, boxes, scores, ids, cropped_boxes) = det_loader.read()
+                print(2)
                 if orig_img is None:
                     break
+                print(3)
                 if boxes is None or boxes.nelement() == 0:
                     writer.save(None, None, None, None, None, orig_img, im_name)
                     continue
+                print(4)
                 if args.profile:
                     ckpt_time, det_time = getTime(start_time)
                     runtime_profile['dt'].append(det_time)
+                print(5)
                 # Pose Estimation
                 inps = inps.to(args.device)
+                print(6)
                 datalen = inps.size(0)
+                print(7)
                 leftover = 0
                 if (datalen) % batchSize:
                     leftover = 1
+                print(8)
                 num_batches = datalen // batchSize + leftover
+                print(9)
+                print(num_batches)
                 hm = []
                 for j in range(num_batches):
                     inps_j = inps[j * batchSize:min((j + 1) * batchSize, datalen)]
