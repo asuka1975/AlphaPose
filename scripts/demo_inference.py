@@ -181,6 +181,7 @@ if __name__ == "__main__":
 
     print('Loading pose model from %s...' % (args.checkpoint,))
     pose_model.load_state_dict(torch.load(args.checkpoint, map_location=args.device))
+    print("Complete to load model")
     pose_dataset = builder.retrieve_dataset(cfg.DATASET.TRAIN)
     if args.pose_track:
         tracker = Tracker(tcfg, args)
