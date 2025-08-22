@@ -252,7 +252,7 @@ if __name__ == "__main__":
                 print(8)
                 num_batches = datalen // batchSize + leftover
                 print(9)
-                print(num_batches)
+                print("hoge", num_batches)
                 hm = []
                 for j in range(num_batches):
                     inps_j = inps[j * batchSize:min((j + 1) * batchSize, datalen)]
