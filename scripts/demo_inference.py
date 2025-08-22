@@ -181,7 +181,6 @@ if __name__ == "__main__":
 
     print('Loading pose model from %s...' % (args.checkpoint,))
     pose_model.load_state_dict(torch.load(args.checkpoint, map_location=args.device))
-    print("Complete to load model")
     pose_dataset = builder.retrieve_dataset(cfg.DATASET.TRAIN)
     if args.pose_track:
         tracker = Tracker(tcfg, args)
@@ -215,6 +214,7 @@ if __name__ == "__main__":
         sys.stdout.flush()
         im_names_desc = tqdm(loop())
     else:
+        print("Starting video demo, press Ctrl + C to terminate...")
         data_len = det_loader.length
         im_names_desc = tqdm(range(data_len), dynamic_ncols=True)
 
