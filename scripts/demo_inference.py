@@ -218,6 +218,8 @@ if __name__ == "__main__":
         data_len = det_loader.length
         im_names_desc = tqdm(range(data_len), dynamic_ncols=True)
 
+    print("Complete to process all images.")
+
     batchSize = args.posebatch
     if args.flip:
         batchSize = int(batchSize / 2)
