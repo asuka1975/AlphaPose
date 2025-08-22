@@ -86,7 +86,7 @@ def to_tensor(pic):
     elif pic.mode == '1':
         img = 255 * torch.from_numpy(np.array(pic, np.uint8, copy=False))
     else:
-    img = torch.tensor(torch.ByteStorage.from_buffer(pic.tobytes()), dtype=torch.uint8)
+        img = torch.tensor(torch.ByteStorage.from_buffer(pic.tobytes()), dtype=torch.uint8)
     # PIL image mode: L, LA, P, I, F, RGB, YCbCr, RGBA, CMYK
     if pic.mode == 'YCbCr':
         nchannel = 3
